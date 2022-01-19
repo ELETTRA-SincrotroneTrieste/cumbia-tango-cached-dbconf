@@ -1,0 +1,11 @@
+option('logfile', type : 'string', value : 'syslog', description : 'output to a file (/var/log/ca3.log), syslog or console')
+option('user', type : 'string', value : 'www-data', description : 'user name to drop privileges to if the service is started by root')
+option('port', type : 'string', value : '9296', description : 'service bind port number')
+option('address', type : 'string', value : '', description : 'service bind address; default: auto')
+
+option('logdir', type : 'string', value : 'log', description : 'log dir, under install prefix. Default $prefix/log')
+option('logfile', type : 'string', value : 'ca-tango-db-cache-mgr.log', description : '[systemd] output to a file (under logdir), syslog or console')
+option('loglev', type : 'string', value : '-i', description : '[systemd] log level: -i: info -w: warning, -v: debug. NOTE: hyphen is required: -i')
+option('conf_file', type: 'string', value : 'ca-tango-db-cache-mgr.conf', description : '[systemd] configuration file name. If not empty, it is added to systemd service')
+option('conf_dir', type : 'string', value : 'etc' , description : '[systemd] configuration file directory, under install prefix. Default: $prefix/etc' )
+option('systemd_service_dir', type : 'string', value : '', description : '[systemd] if not empty, the service file will be installed there instead of pkgconfig \"systemdsystemunitdir\"')

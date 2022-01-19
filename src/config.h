@@ -1,0 +1,5 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+#define CASUPERVISOR_VERSION  __CASUPERVISOR_VERSION__
+
+#endif // CONFIG_H
