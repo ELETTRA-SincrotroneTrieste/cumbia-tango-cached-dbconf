@@ -1,4 +1,4 @@
-#include "casupjsoniz.h"
+#include "cutadbcjsoniz.h"
 #include <nlohmann/json.hpp>
 #include <cudata.h>
 
@@ -12,50 +12,16 @@ CaSupJsoniz::CaSupJsoniz()
  * \param dl vector of data as CuData
  * \return a vector of json requests to use with caserver, each element refers to a different cli_id
  */
-std::map<std::string, std::string> CaSupJsoniz::jsonize(const std::vector<CuData> &dl,
-                                                        std::map<std::string, std::list<CuData>> & clidmap) const {
-    std::map<std::string, std::string> jsonma;
-    // group by cli_id
-    for(const CuData& d : dl) {
-        clidmap[d["cli_id"].toString()].push_back(d);
+std::string CaSupJsoniz::jsonize(const std::vector<std::string>& srcs) const {
+    nlohmann::json out;
+    nlohmann::json src_array;
+    for(const std::string& s : srcs) {
+        nlohmann::json jsrc;
+        jsrc["src"] = s;
+        src_array.push_back(jsrc);
     }
-    for(std::map<std::string, std::list<CuData>>::const_iterator it = clidmap.begin(); it != clidmap.end(); ++it) {
-        nlohmann::json src_array;
-        for(const CuData& d : it->second) {
-            nlohmann::json data_o;
-            nlohmann::json o, options;
-
-            // OPTIONS
-            data_o["subscribe-only"] = "true";
-            data_o["value-only"] = "true";
-            // option names list
-            options.push_back("subscribe-only");
-            options.push_back("value-only");
-            options.push_back("recovered-from-srv-conf");
-            options.push_back("recovered-by");
-
-            // more option names may follow:
-            //
-            // options.push_back("blabla");
-            // data_o["blabla"] = "blabbbla";
-            // "options" key contains the list of option keys
-            data_o["options"] = options;
-            // END OPTIONS
-            //
-            // from source (db table name) to src
-            data_o["src"] = d["source"].toString();
-            data_o["method"] = "S";
-            data_o["recovered-from-srv-conf"] = d["conf_id"].toString();
-            data_o["recovered-by"] = "casupervisor";
-            data_o["channel"] = d.s("chan").length() > 0 ? d.s("chan") : d.s("channel");
-            src_array.push_back(data_o);
-        }
-        nlohmann::json req;
-        req["srcs"] = src_array;
-        req["id"] = it->first;
-        jsonma[it->first] = req.dump() + "\r\n\r\n";
-    }
-    return jsonma;
+    out["srcs"] = src_array;
+    return out.dump();
 }
 
 void CaSupJsoniz::extract(const std::string &json, std::list<CuData> &dl) const {

@@ -14,8 +14,7 @@ class CaSupJsoniz
 {
 public:
 	CaSupJsoniz();
-    std::map<std::string, std::string> jsonize(const std::vector<CuData>&dl,
-                                               std::map<std::string, std::list<CuData> > &clidmap) const;
+    std::string jsonize(const std::vector<std::string>& srcs) const;
     void extract(const std::string& json, std::list<CuData>& dl) const;
     const std::string make_msg_ok() const;
     const std::string make_err_msg(const std::string& msg) const;

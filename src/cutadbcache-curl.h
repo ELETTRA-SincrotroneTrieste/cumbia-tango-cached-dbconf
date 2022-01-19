@@ -6,12 +6,12 @@
 #include <vector>
 #include <map>
 
-class CaSupCurlPrivate;
-class CaSupCurl;
+class CuTaDbCacheCURL_P;
+class CuTaDbCacheCURL;
 
-class CaSupCurlWriteFuncData {
+class CuTaDbCacheCURLWriteFuncData {
 public:
-    CaSupCurlWriteFuncData(const std::string& _chan) {
+    CuTaDbCacheCURLWriteFuncData(const std::string& _chan) {
 		chan = _chan;
 	}
 
@@ -19,13 +19,13 @@ public:
 	int su_cnt;
 };
 
-class CaSupCurl
+class CuTaDbCacheCURL
 {
 public:
-	CaSupCurl(const std::string &url, bool ssl_verifypeer);
-	virtual ~CaSupCurl();
+    CuTaDbCacheCURL(const std::string &url, bool ssl_verifypeer);
+    virtual ~CuTaDbCacheCURL();
 
-    std::map<std::string, std::string> xmit(const std::map<std::string, std::string> &datamap);
+    bool send(const std::vector<std::string>& srcs, std::string &response);
 
 	static size_t write_callback(char *ptr, size_t size, size_t nmemb, void *userdata);
 
@@ -35,10 +35,10 @@ public:
 	                           void *userp,     /* private callback pointer */
 	                           void *socketp);
 	static int start_timeout(CURLM *multi, long timeout_ms, void *userp);
-    const std::string& response() const;
+    const std::string message() const;
 
 private:
-	CaSupCurlPrivate *d;
+    CuTaDbCacheCURL_P *d;
 };
 
 #endif // CASUPCURL_H

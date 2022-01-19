@@ -25,6 +25,7 @@ openssldep = dependency('openssl')
 curldep = dependency('libcurl')
 # for activities / threads
 cumbiadep = dependency('cumbia', version: '>=1.4.0')
+cumbiatangodep = dependency('cumbia-tango', version: '>=1.4.0')
 redisdep = dependency('redis++')
 
 nlohmann_json_dep = dependency('nlohmann_json', required : false)
@@ -47,29 +48,38 @@ deps = [ dependency('threads'),
 	nlohmann_json_dep,
 	curldep,
 	cumbiadep,
+        cumbiatangodep,
 	redisdep ]
 
 headers = [
         'src/config.h',
-        'src/cutacached-dbconf.h',
-		'src/casupjsoniz.h',
-		'src/casupcurl.h',
+        'src/cutacached-dbconf-executor.h',
+                'src/cutadbcjsoniz.h',
+                'src/cutadbcache-curl.h',
                 'src/cutadbcacheu.h',
-                'src/catdbcaredisu.h'
+                'src/cutdbredis-service.h',
+                'src/cutcachedconffactories.h'
 ]
 
 sources = [
-        'src/cutacached-dbconf.cpp',
-		'src/casupjsoniz.cpp',
-		'src/casupcurl.cpp',
+        'src/cutacached-dbconf-executor.cpp',
+                'src/cutadbcjsoniz.cpp',
+                'src/cutadbcache-curl.cpp',
                 'src/cutadbcacheu.cpp',
-                'src/catdbcaredisu.cpp'
+                'src/cutdbredis-service.cpp',
+                'src/cutcachedconffactories.cpp'
 		]
 
 cutgcached_dbconflib = shared_library('cumbia-tango-cached-dbconf',
     sources, dependencies : deps, cpp_args : cpp_arguments,
 	include_directories : includedirs,
 	install : true)
+
+inst_h = ['src/cutacached-dbconf-executor.h',
+    'src/cutdbredis-service.h',
+    'src/cutcachedconffactories.h' ]
+
+install_headers(inst_h, subdir : 'cumbia-tango-cached-dbconf')
 
 ### ====================================== pkg config   ============================
 pkgconfig = find_program('pkg-config', required: false)
