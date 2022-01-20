@@ -20,7 +20,10 @@ Check dependencies and PKG_CONFIG_PATH. In particular, [redis-plus-plus](https:/
 
 > cd builddir
 
-> meson configure -Dprefix=/usr/local/cumbia-tango-cached-dbconf
+Install the library alongside cumbia-libs so that it can be easily found and used
+as a module
+
+> meson configure -Dprefix=/usr/local/cumbia-libs
 
 > meson configure -Dlibdir=lib
 

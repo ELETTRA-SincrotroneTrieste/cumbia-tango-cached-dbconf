@@ -45,11 +45,8 @@ bool CuTgDbCachedDbConfX::m_cache_srv_notify(const string &src, std::string& res
 std::string CuTgDbCachedDbConfX::m_make_fully_qualified_src(const string &devna,
                                                             const string &attna,
                                                             const string &proto) const {
-    std::string src = devna + "/" + attna;
-    // tango:// ?
-    if(src.find(proto, 0) == std::string::npos)
-        src = proto + src;
-    return src;
+    CuTangoWorld w;
+    return w.prepend_tgproto(w.make_fqdn_src(devna + "/" + attna));
 }
 
 
@@ -65,11 +62,11 @@ bool CuTgDbCachedDbConfX::get_att_config(Tango::DeviceProxy *dev,
     d->error.clear();
     std::vector<std::optional<std::string> > vals;
     bool cache_hit = false;
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     std::string src = m_make_fully_qualified_src(devnam, attribute, "tango://");
 
     printf("CuTgDbCachedDbConfX::get_att_config searching in cache src \e[1;32m%s\e[0m\n", src.c_str());
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     cache_hit = d->redis_s->get(src, dres);
     if(cache_hit && !skip_read_att) {
         CuTangoWorld w;
@@ -84,7 +81,7 @@ bool CuTgDbCachedDbConfX::get_att_config(Tango::DeviceProxy *dev,
         std::string curlre; // curl response
         CuTangoWorld w;
         w.get_att_config(dev, attribute, dres, skip_read_att);
-        bool curlok = m_cache_srv_notify(devnam + "/" + attribute, curlre);
+        bool curlok = m_cache_srv_notify(devnam + "/" + attribute, curlre); // uses CURL
         if(!curlok) d->error = d->redis_s->last_curl_message();
         printf("CuTgDbCachedDbConfX::get_att_config: after notifying need new src %s: response %s error %s\n",
                std::string(devnam + "/" + attribute).c_str(), curlre.c_str(), d->error.c_str());
