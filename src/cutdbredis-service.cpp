@@ -52,9 +52,9 @@ CuTDBRedisService::CuTDBRedisService(const CuData &o) {
 
     printf("CuTDBRedisService::CuTDBRedisService: options %s\n", datos(o));
     // Connection options: see also https://github.com/sewenew/redis-plus-plus#connection-options
-    if(o.containsKey("redis_ho")) d->conn_o.host = o.s("redis_ho");
-    if(o.s("redis_po").length() > 0 && atoi(o.s("redis_po").c_str()) > 0) {
-        d->conn_o.port = atoi(o.s("redis_po").c_str());
+    if(o.containsKey("redis-host")) d->conn_o.host = o.s("redis-host");
+    if(o.s("redis-port").length() > 0 && atoi(o.s("redis-port").c_str()) > 0) {
+        d->conn_o.port = atoi(o.s("redis-port").c_str());
     }
 
     // "ca-tango-db-cache-mgr-host" -> taeyang.elettra.eu
@@ -79,9 +79,12 @@ bool CuTDBRedisService::get(const std::string& src, CuData& out) {
     std::vector<std::optional<std::string> > vals;
     try {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        long long count = d->redis->exists(src);
+        long long count =1 ; // test = d->redis->exists(src);
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        printf("CuTDBRedisService::get: exists took %ldus\n", std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count());
         complete = count > 0;
         if(count > 0) {
+            begin = std::chrono::steady_clock::now();
             d->redis->hmget(src, d->attcnf_keys.begin(), d->attcnf_keys.end(), std::back_inserter(vals));
             std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
             printf("CuTDBRedisService::get: hmget took %ldus\n", std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count());
@@ -89,12 +92,10 @@ bool CuTDBRedisService::get(const std::string& src, CuData& out) {
             for(const std::optional<std::string>& val : vals) {
                 const std::string& k = d->attcnf_keys[i++];
                 if(val) {
-                    printf("CuTDBRedisService.get: %s --> %s\n", k.c_str(), val->c_str());
                     out[k] = val.value();
                 }
                 else {
                     out[k] = "";
-                    printf("CuTDBRedisService.get: %s --> null value\n", k.c_str());
                     complete = false;
                 }
             }
