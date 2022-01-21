@@ -70,7 +70,12 @@ bool CuTgDbCachedDbConfX::get_att_config(Tango::DeviceProxy *dev,
     cache_hit = d->redis_s->get(src, dres);
     if(cache_hit && !skip_read_att) {
         CuTangoWorld w;
+        std::chrono::steady_clock::time_point beginread = std::chrono::steady_clock::now();
+
         w.read_att(dev, attribute, dres);
+        std::chrono::steady_clock::time_point endread = std::chrono::steady_clock::now();
+        printf("CuTgDbCachedDbConfX::get_att_config \e[1;33mread_attribute took %ldms\e[0m\n",
+               std::chrono::duration_cast<std::chrono::microseconds>(endread - beginread).count());
         // dim_x property contains the actual number of x elements
         long int dimx = dres["value"].getSize(); // if !contains value, empty variant, 0 dimx
         if(dimx > 0)
@@ -87,8 +92,8 @@ bool CuTgDbCachedDbConfX::get_att_config(Tango::DeviceProxy *dev,
                std::string(devnam + "/" + attribute).c_str(), curlre.c_str(), d->error.c_str());
     }
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    printf("CuTgDbCachedDbConfX::get_att_config returns\n%s\nFROM %s\e[0m in \e[1;36m%ldus\e[0m\n",
-           datos(dres), cache_hit ? "\e[1;32mCACHE" : "\e[1;35mTANGO DATABASE\e[0m",
+    printf("CuTgDbCachedDbConfX::get_att_config \nFROM %s\e[0m in \e[1;36m%ldus\e[0m\n",
+           cache_hit ? "\e[1;32mCACHE" : "\e[1;35mTANGO DATABASE\e[0m",
            std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count());
     return d->error.length() == 0;
 }
